@@ -1,0 +1,1206 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>No One Came Back — Voice Portal</title>
+
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #090b0e;
+      --panel: #111419;
+      --border: #292e36;
+      --muted: #8d949e;
+      --red: #cf4343;
+      --white: #f2f0eb;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--white);
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    button,
+    input,
+    textarea {
+      font: inherit;
+    }
+
+    button,
+    a {
+      transition: 0.15s ease;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .shell {
+      min-height: 100vh;
+    }
+
+    .login {
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background:
+        radial-gradient(circle at 50% 40%, #381719 0, transparent 25rem),
+        linear-gradient(145deg, #12151a, #07090b 62%);
+    }
+
+    .login-card {
+      width: min(100%, 460px);
+      padding: 42px;
+      border: 1px solid #323741;
+      border-radius: 16px;
+      background: linear-gradient(#15181d, #0b0d10);
+      box-shadow: 0 30px 80px #0009;
+    }
+
+    .brand {
+      font-size: 13px;
+      font-weight: 900;
+      letter-spacing: 0.16em;
+    }
+
+    .brand::before {
+      content: "▥";
+      margin-right: 10px;
+      color: var(--red);
+    }
+
+    .brand small {
+      display: block;
+      margin: 5px 0 0 27px;
+      color: #6f7580;
+      font: 700 9px "Courier New", monospace;
+    }
+
+    .login h1 {
+      margin: 40px 0 8px;
+      font-size: 44px;
+      letter-spacing: -0.04em;
+    }
+
+    .muted {
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .login label {
+      display: block;
+      margin: 28px 0 8px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .login input {
+      width: 100%;
+      height: 58px;
+      padding: 0 18px;
+      border: 1px solid #373d47;
+      border-radius: 9px;
+      background: #080a0d;
+      color: white;
+      font: 700 20px "Courier New", monospace;
+      letter-spacing: 0.18em;
+    }
+
+    .primary {
+      border: 0;
+      border-radius: 8px;
+      background: #ece8df;
+      color: #0b0d10;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .login .primary {
+      width: 100%;
+      height: 52px;
+      margin-top: 14px;
+    }
+
+    .error {
+      min-height: 20px;
+      margin: 10px 0 0;
+      color: #ef7777;
+      font-size: 13px;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      height: 76px;
+      padding: 0 clamp(16px, 4vw, 52px);
+      border-bottom: 1px solid var(--border);
+      background: #0a0c0ff2;
+      backdrop-filter: blur(14px);
+    }
+
+    .access {
+      padding: 8px 11px;
+      border: 1px solid #6e3438;
+      border-radius: 999px;
+      color: #e57979;
+      font: 700 10px "Courier New", monospace;
+      letter-spacing: 0.1em;
+    }
+
+    .logout {
+      margin-left: 8px;
+      border: 0;
+      background: transparent;
+      color: #999;
+      cursor: pointer;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 270px minmax(0, 1fr);
+    }
+
+    aside {
+      position: sticky;
+      top: 76px;
+      height: calc(100vh - 76px);
+      padding: 28px 14px;
+      overflow: auto;
+      border-right: 1px solid var(--border);
+      background: #0c0e11;
+    }
+
+    .side-title {
+      display: flex;
+      justify-content: space-between;
+      padding: 0 10px 12px;
+      color: #777;
+      font: 700 10px "Courier New", monospace;
+      letter-spacing: 0.12em;
+    }
+
+    .side-list {
+      display: grid;
+      gap: 5px;
+    }
+
+    .nav-btn {
+      display: grid;
+      grid-template-columns: 28px 1fr auto;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      padding: 12px 10px;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      background: transparent;
+      color: #858b95;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .nav-btn:hover,
+    .nav-btn.active {
+      color: white;
+      background: #191d22;
+    }
+
+    .nav-btn.active {
+      border-color: #383e48;
+      box-shadow: 3px 0 var(--red) inset;
+    }
+
+    .number,
+    .count {
+      font: 700 11px "Courier New", monospace;
+    }
+
+    .count {
+      padding: 4px 7px;
+      border-radius: 999px;
+      background: #090b0e;
+    }
+
+    .library-title {
+      margin: 28px 10px 8px;
+      color: #777;
+      font: 700 10px "Courier New", monospace;
+      letter-spacing: 0.12em;
+    }
+
+    main {
+      min-width: 0;
+      padding: clamp(32px, 5vw, 64px) clamp(16px, 5vw, 80px) 80px;
+    }
+
+    .heading {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 18px;
+      max-width: 1000px;
+      margin: 0 auto 48px;
+    }
+
+    .heading h1 {
+      margin: 8px 0 0;
+      font-size: clamp(34px, 5vw, 58px);
+      line-height: 1;
+      letter-spacing: -0.05em;
+    }
+
+    .heading p {
+      margin: 12px 0 0;
+    }
+
+    .eyebrow {
+      color: #d75a5a;
+      font: 700 11px "Courier New", monospace;
+      letter-spacing: 0.15em;
+    }
+
+    .save-button {
+      min-width: 130px;
+      height: 42px;
+      padding: 0 16px;
+    }
+
+    .scene-list,
+    .soundtrack-list {
+      display: grid;
+      gap: 48px;
+      max-width: 1000px;
+      margin: auto;
+    }
+
+    .scene-heading {
+      display: grid;
+      grid-template-columns: 58px 1fr;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 14px;
+    }
+
+    .scene-number {
+      display: grid;
+      place-items: center;
+      width: 58px;
+      height: 58px;
+      border: 1px solid #343a44;
+      background: #111419;
+      color: #777;
+      font: 700 16px "Courier New", monospace;
+    }
+
+    .scene-heading p {
+      margin: 0 0 4px;
+      color: #777;
+      font: 700 10px "Courier New", monospace;
+      letter-spacing: 0.13em;
+    }
+
+    .scene-heading h2 {
+      margin: 0;
+      font-size: 20px;
+    }
+
+    .line-cards {
+      display: grid;
+      gap: 12px;
+    }
+
+    .line-card {
+      padding: 18px 20px;
+      border: 1px solid #292f37;
+      border-radius: 10px;
+      background: linear-gradient(145deg, #13161b, #0e1115);
+    }
+
+    .line-meta {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 10px;
+      color: #777;
+      font: 700 10px "Courier New", monospace;
+    }
+
+    .line-meta span:first-child {
+      color: #d75a5a;
+    }
+
+    .line-text {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.55;
+    }
+
+    .line-editor {
+      width: 100%;
+      min-height: 88px;
+      padding: 12px;
+      border: 1px solid #3a414b;
+      border-radius: 7px;
+      background: #090b0e;
+      color: white;
+      line-height: 1.5;
+      resize: vertical;
+    }
+
+    .location {
+      margin: 12px 0 0;
+      color: #666d77;
+      font-size: 12px;
+    }
+
+    .soundtrack-card {
+      display: grid;
+      grid-template-columns: 72px 1fr auto;
+      align-items: center;
+      gap: 20px;
+      padding: 20px;
+      border: 1px solid #303640;
+      border-radius: 12px;
+      background: linear-gradient(145deg, #14181d, #0e1115);
+    }
+
+    .track-number {
+      display: grid;
+      place-items: center;
+      width: 72px;
+      height: 72px;
+      border: 1px solid #3a414b;
+      border-radius: 9px;
+      color: #d75a5a;
+      font: 700 18px "Courier New", monospace;
+    }
+
+    .soundtrack-card h2 {
+      margin: 3px 0 4px;
+    }
+
+    .soundtrack-card p {
+      margin: 0;
+    }
+
+    .soundtrack-card audio {
+      width: min(100%, 500px);
+      height: 38px;
+      margin-top: 14px;
+    }
+
+    .track-actions {
+      display: grid;
+      gap: 10px;
+      color: #777;
+      font: 700 11px "Courier New", monospace;
+      text-align: right;
+    }
+
+    .download {
+      display: inline-flex;
+      justify-content: center;
+      padding: 11px 14px;
+      border: 1px solid #454c57;
+      border-radius: 8px;
+      color: white;
+      text-decoration: none;
+    }
+
+    .credits {
+      max-width: 1000px;
+      margin: 70px auto 0;
+      padding-top: 28px;
+      border-top: 1px solid #272c34;
+      color: #777;
+      font: 700 11px "Courier New", monospace;
+      line-height: 1.9;
+      letter-spacing: 0.09em;
+      text-align: center;
+    }
+
+    .credits strong {
+      display: block;
+      color: #ddd;
+      font-size: 13px;
+    }
+
+    .actor-layout {
+      display: block;
+    }
+
+    .actor-layout aside {
+      display: none;
+    }
+
+    .actor-layout main {
+      max-width: 1120px;
+      margin: auto;
+    }
+
+    @media (max-width: 760px) {
+      header {
+        height: auto;
+        min-height: 70px;
+        padding-block: 12px;
+      }
+
+      .layout {
+        display: block;
+      }
+
+      aside {
+        position: sticky;
+        top: 70px;
+        z-index: 5;
+        display: flex;
+        height: auto;
+        padding: 10px;
+        overflow-x: auto;
+        border-right: 0;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .side-title,
+      .library-title {
+        display: none;
+      }
+
+      .side-list {
+        display: flex;
+      }
+
+      .nav-btn {
+        min-width: 145px;
+      }
+
+      .soundtrack-button {
+        min-width: 205px;
+      }
+
+      .heading {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .save-button {
+        width: 100%;
+      }
+
+      .soundtrack-card {
+        grid-template-columns: 54px 1fr;
+      }
+
+      .track-number {
+        width: 54px;
+        height: 54px;
+      }
+
+      .track-actions {
+        grid-column: 1 / -1;
+        text-align: left;
+      }
+
+      .soundtrack-card audio {
+        width: 100%;
+      }
+
+      .login-card {
+        padding: 30px 24px;
+      }
+
+      .login h1 {
+        font-size: 38px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <section id="login" class="shell login">
+    <form id="loginForm" class="login-card">
+      <div class="brand">NO ONE CAME BACK</div>
+
+      <h1>Enter your code</h1>
+
+      <p class="muted">
+        Your code opens only the lines assigned to your character.
+      </p>
+
+      <label for="code">Private access code</label>
+
+      <input
+        id="code"
+        inputmode="numeric"
+        autocomplete="one-time-code"
+        maxlength="11"
+        placeholder="•••••••••"
+        autofocus
+      >
+
+      <p id="loginError" class="error"></p>
+
+      <button class="primary" type="submit">
+        Open my script →
+      </button>
+    </form>
+  </section>
+
+  <section id="portal" class="shell hidden">
+    <header>
+      <div class="brand">
+        NO ONE CAME BACK
+        <small>DEMO VOICE SCRIPT</small>
+      </div>
+
+      <div>
+        <span id="accessBadge" class="access"></span>
+        <button id="logout" class="logout">Log out</button>
+      </div>
+    </header>
+
+    <div id="layout" class="layout">
+      <aside id="sidebar"></aside>
+
+      <main>
+        <div id="content"></div>
+
+        <footer class="credits">
+          NO ONE CAME BACK — DEMO CREDITS
+
+          <strong>Created by Brantley Tingle &amp; Jaxie Love</strong>
+
+          Story and game development: Brantley Tingle &amp; Jaxie Love
+        </footer>
+      </main>
+    </div>
+  </section>
+
+  <script>
+    "use strict";
+
+    const actors = [
+      {
+        id: "maya",
+        name: "Maya",
+        code: "251952046"
+      },
+      {
+        id: "eli",
+        name: "Eli",
+        code: "538428428"
+      },
+      {
+        id: "samira",
+        name: "Samira Vale",
+        code: "5385195384"
+      },
+      {
+        id: "grant",
+        name: "Grant Mercer",
+        code: "5384195494"
+      },
+      {
+        id: "ruth",
+        name: "Ruth Bell",
+        code: "9471054705"
+      },
+      {
+        id: "theo",
+        name: "Theo Marsh",
+        code: "5395195493"
+      },
+      {
+        id: "chen",
+        name: "Dr Iris Chen",
+        code: "71054051991"
+      },
+      {
+        id: "sheriff",
+        name: "Sheriff Daniel Cross",
+        code: "61054951919"
+      }
+    ];
+
+    const OWNER_CODE = "8244828595";
+
+    const scenes = {
+      1: {
+        title: "The Final Broadcast",
+        location: "Town emergency station"
+      },
+      2: {
+        title: "Maya Returns",
+        location: "South road into Saint Hollow"
+      },
+      3: {
+        title: "The Stranger on Main Street",
+        location: "Outside the sheriff station"
+      },
+      4: {
+        title: "The Sheriff Station",
+        location: "Front office and radio room"
+      },
+      5: {
+        title: "The Clinic Recording",
+        location: "Saint Hollow Clinic"
+      },
+      6: {
+        title: "Voices Left Behind",
+        location: "Maya's house and Eli's rented room"
+      },
+      7: {
+        title: "The North Woods",
+        location: "North trail marker and ranger shelter"
+      },
+      8: {
+        title: "The Church Radio",
+        location: "Saint Hollow Church"
+      }
+    };
+
+    const makeLine = (actorId, scene, id, text) => ({
+      actorId,
+      scene,
+      id,
+      text
+    });
+
+    const originalLines = [
+      makeLine("sheriff", 1, "SHR-001", "This is Sheriff Daniel Cross. The time is twelve seventeen in the morning."),
+      makeLine("sheriff", 1, "SHR-002", "If you can hear me, do not follow the evacuation signal."),
+      makeLine("sheriff", 1, "SHR-003", "The voice on the radio is not one of us."),
+      makeLine("sheriff", 1, "SHR-004", "Stay out of the North Woods. Stay away from anything that calls your name."),
+
+      makeLine("maya", 2, "MAY-001", "Same road. Same houses. Just no people."),
+      makeLine("maya", 2, "MAY-002", "Samira, if you came back here, you better have left me something."),
+      makeLine("maya", 2, "MAY-003", "No signal. Of course."),
+      makeLine("maya", 2, "MAY-004", "That light was not on a second ago."),
+      makeLine("samira", 2, "SAM-001", "Maya, do not come looking for me."),
+      makeLine("samira", 2, "SAM-002", "If the town is quiet, keep it that way."),
+
+      makeLine("maya", 3, "MAY-005", "Stop right there."),
+      makeLine("eli", 3, "ELI-001", "Easy. I am not looking for a fight."),
+      makeLine("maya", 3, "MAY-006", "Then why were you following me?"),
+      makeLine("eli", 3, "ELI-002", "I was following the radio. You happened to be walking toward it."),
+      makeLine("maya", 3, "MAY-007", "The emergency broadcast? That recording is a year old."),
+      makeLine("eli", 3, "ELI-003", "It played again last night."),
+      makeLine("maya", 3, "MAY-008", "That is impossible."),
+      makeLine("eli", 3, "ELI-004", "So is a town where every light works and nobody lives."),
+      makeLine("maya", 3, "MAY-009", "My sister disappeared here. I am finding out what happened."),
+      makeLine("eli", 3, "ELI-005", "Then we want the same thing. Answers."),
+      makeLine("eli", 3, "ELI-006", "The station door is chained, but the side window is broken."),
+
+      makeLine("eli", 4, "ELI-007", "Someone cleared this place out in a hurry."),
+      makeLine("maya", 4, "MAY-010", "No. They took the files and left the family pictures. They knew what mattered."),
+      makeLine("grant", 4, "GRA-001", "Field log, Grant Mercer. The evacuation siren started without power."),
+      makeLine("grant", 4, "GRA-002", "Cross ordered us to block the north road. Then we heard people inside the woods."),
+      makeLine("grant", 4, "GRA-003", "They sounded like our families."),
+      makeLine("grant", 4, "GRA-004", "Theo followed his mother's voice. I could not stop him."),
+      makeLine("eli", 4, "ELI-008", "The broadcast did not warn them. It pulled them out."),
+      makeLine("maya", 4, "MAY-011", "Samira's name is on this list."),
+      makeLine("eli", 4, "ELI-009", "So is the clinic. Maybe they treated someone who came back."),
+      makeLine("maya", 4, "MAY-012", "Then we go there next."),
+      makeLine("sheriff", 4, "SHR-005", "Mercer, if you hear this, burn the map. Do not let it learn another route."),
+      makeLine("eli", 4, "ELI-010", "It learns?"),
+
+      makeLine("maya", 5, "MAY-013", "This place still smells like disinfectant."),
+      makeLine("eli", 5, "ELI-011", "The generator is warm. Someone has been here."),
+      makeLine("chen", 5, "DRC-001", "Patient Ruth Bell arrived at one forty-two with no visible injuries."),
+      makeLine("chen", 5, "DRC-002", "She repeated a voice she heard beneath the town, word for word."),
+      makeLine("chen", 5, "DRC-003", "When I asked who was speaking, she answered in my voice."),
+      makeLine("chen", 5, "DRC-004", "I have locked the tunnel key in the church radio cabinet."),
+      makeLine("maya", 5, "MAY-014", "The tunnels are real."),
+      makeLine("eli", 5, "ELI-012", "And the church has a key to them."),
+      makeLine("maya", 5, "MAY-015", "We are not going underground."),
+      makeLine("eli", 5, "ELI-013", "I did not say we were. But somebody wants us to know the way in."),
+      makeLine("maya", 5, "MAY-016", "Samira's medical file is missing."),
+
+      makeLine("ruth", 6, "RUT-001", "Maya, your sister came by asking about the church basement."),
+      makeLine("ruth", 6, "RUT-002", "I told her the sheriff sealed it, but she already had a map."),
+      makeLine("ruth", 6, "RUT-003", "If you find this, please tell Samira I am sorry."),
+      makeLine("maya", 6, "MAY-017", "Ruth knew she was coming here."),
+      makeLine("eli", 6, "ELI-014", "Samira was ahead of the evacuation story. She was investigating it."),
+      makeLine("samira", 6, "SAM-003", "Maya, the signal is strongest near North Woods."),
+      makeLine("samira", 6, "SAM-004", "I left a copy of everything at the church. Do not trust a voice you cannot see."),
+      makeLine("maya", 6, "MAY-018", "She knew I would follow."),
+      makeLine("eli", 6, "ELI-015", "She also left you a way to survive it."),
+      makeLine("theo", 6, "THE-001", "Radio check. My name is Theo Marsh."),
+      makeLine("theo", 6, "THE-002", "I am at the north trail marker. Someone is calling from beyond the fence."),
+      makeLine("theo", 6, "THE-003", "It sounds like my mother, but she has been dead for three years."),
+      makeLine("theo", 6, "THE-004", "If I stop talking, do not answer when it uses me."),
+      makeLine("eli", 6, "ELI-016", "That transmission was why I came here."),
+      makeLine("maya", 6, "MAY-019", "You knew Theo?"),
+      makeLine("eli", 6, "ELI-017", "He was my friend. He sent that message directly to me."),
+      makeLine("maya", 6, "MAY-020", "Then we both have someone waiting in those woods."),
+      makeLine("eli", 6, "ELI-018", "Or something waiting with their voices."),
+
+      makeLine("eli", 7, "ELI-019", "From here on, we whisper."),
+      makeLine("maya", 7, "MAY-021", "I can hear Samira."),
+      makeLine("eli", 7, "ELI-020", "You can hear something that studied her."),
+      makeLine("samira", 7, "SAM-005", "Maya, I am cold. Please come closer."),
+      makeLine("maya", 7, "MAY-022", "That is not her."),
+      makeLine("eli", 7, "ELI-021", "Do not answer it."),
+      makeLine("maya", 7, "MAY-023", "The recorder is inside the shelter."),
+      makeLine("eli", 7, "ELI-022", "I will draw it away. Get the recorder and meet me at the fence."),
+      makeLine("maya", 7, "MAY-024", "We stay together."),
+      makeLine("eli", 7, "ELI-023", "Then move when I move."),
+      makeLine("sheriff", 7, "SHR-006", "Maya. Eli. The church is safe."),
+      makeLine("eli", 7, "ELI-024", "It knows both our names now. Run."),
+
+      makeLine("maya", 8, "MAY-025", "This is Samira's handwriting. She found the source under the town."),
+      makeLine("eli", 8, "ELI-025", "The signal is live. It has been live the whole time."),
+      makeLine("sheriff", 8, "SHR-007", "If anyone finds this, the missing people were taken below. Seal the door and leave Saint Hollow."),
+      makeLine("maya", 8, "MAY-026", "Samira might still be alive."),
+      makeLine("eli", 8, "ELI-026", "And Theo might be down there with her."),
+      makeLine("maya", 8, "MAY-027", "We came for answers. Now we know where to look."),
+      makeLine("eli", 8, "ELI-027", "Maya, the radio is receiving something."),
+      makeLine("samira", 8, "SAM-006", "Maya? If that is really you, do not open the door."),
+      makeLine("maya", 8, "MAY-028", "Samira?"),
+      makeLine("eli", 8, "ELI-028", "Look at the floor."),
+      makeLine("maya", 8, "MAY-029", "Something is underneath us.")
+    ];
+
+    const soundtrack = [
+      {
+        number: "01",
+        title: "No One Came Back",
+        subtitle: "Main Title v2",
+        information: "2:59 • 4.2 MB",
+        url: "https://no-one-came-back-voices.brantley167.chatgpt.site/soundtrack/01-no-one-came-back-main-title.mp3"
+      },
+      {
+        number: "02",
+        title: "Where Is Everyone?",
+        subtitle: "No One Came Back Track 02",
+        information: "2:53 • 4.0 MB",
+        url: "https://no-one-came-back-voices.brantley167.chatgpt.site/soundtrack/02-where-is-everyone.mp3"
+      }
+    ];
+
+    const downloadAllSoundtrack =
+      "https://no-one-came-back-voices.brantley167.chatgpt.site/soundtrack/no-one-came-back-demo-soundtrack.zip";
+
+    let currentRole = null;
+    let selectedActor = "maya";
+    let currentView = "script";
+    let drafts = {};
+
+    const getElement = id => document.getElementById(id);
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>'"]/g, character => {
+        const replacements = {
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          "'": "&#39;",
+          "\"": "&quot;"
+        };
+
+        return replacements[character];
+      });
+    }
+
+    function getSavedEdits() {
+      try {
+        return JSON.parse(
+          localStorage.getItem("nocb-script-edits") || "{}"
+        );
+      } catch {
+        return {};
+      }
+    }
+
+    function getLines() {
+      const edits = getSavedEdits();
+
+      return originalLines.map(line => ({
+        ...line,
+        text: edits[line.id] ?? line.text
+      }));
+    }
+
+    function renderSidebar() {
+      const sidebar = getElement("sidebar");
+
+      if (!currentRole || !currentRole.owner) {
+        sidebar.innerHTML = "";
+        return;
+      }
+
+      const lines = getLines();
+
+      sidebar.innerHTML = `
+        <div class="side-title">
+          <span>CHARACTERS</span>
+          <span>${lines.length} LINES TOTAL</span>
+        </div>
+
+        <div class="side-list">
+          ${actors.map((actor, index) => {
+            const lineCount = lines.filter(
+              line => line.actorId === actor.id
+            ).length;
+
+            const active =
+              currentView === "script" &&
+              selectedActor === actor.id;
+
+            return `
+              <button
+                class="nav-btn ${active ? "active" : ""}"
+                data-actor="${actor.id}"
+              >
+                <span class="number">0${index + 1}</span>
+                <strong>${escapeHtml(actor.name)}</strong>
+                <span class="count">${lineCount}</span>
+              </button>
+            `;
+          }).join("")}
+        </div>
+
+        <div class="library-title">OWNER LIBRARY</div>
+
+        <button
+          id="soundtrackButton"
+          class="nav-btn soundtrack-button ${
+            currentView === "soundtrack" ? "active" : ""
+          }"
+        >
+          <span>♫</span>
+          <strong>Download soundtrack</strong>
+          <span class="count">${soundtrack.length}</span>
+        </button>
+      `;
+
+      document.querySelectorAll("[data-actor]").forEach(button => {
+        button.addEventListener("click", () => {
+          selectedActor = button.dataset.actor;
+          currentView = "script";
+          renderPortal();
+        });
+      });
+
+      getElement("soundtrackButton").addEventListener("click", () => {
+        currentView = "soundtrack";
+        renderPortal();
+      });
+    }
+
+    function renderScript() {
+      const actor = currentRole.owner
+        ? actors.find(item => item.id === selectedActor)
+        : currentRole.actor;
+
+      const lines = getLines().filter(
+        line => line.actorId === actor.id
+      );
+
+      const sceneNumbers = [
+        ...new Set(lines.map(line => line.scene))
+      ];
+
+      getElement("content").innerHTML = `
+        <section class="heading">
+          <div>
+            <p class="eyebrow">
+              ${
+                currentRole.owner
+                  ? "OWNER SCRIPT VIEW"
+                  : "YOUR ASSIGNED ROLE"
+              }
+            </p>
+
+            <h1>
+              Here are ${escapeHtml(actor.name)}'s lines
+            </h1>
+
+            <p class="muted">
+              ${lines.length} dialogue lines across
+              ${sceneNumbers.length} scenes
+            </p>
+          </div>
+
+          ${
+            currentRole.owner
+              ? `
+                <button
+                  id="saveButton"
+                  class="primary save-button"
+                >
+                  Save changes
+                </button>
+              `
+              : ""
+          }
+        </section>
+
+        <div class="scene-list">
+          ${sceneNumbers.map(sceneNumber => {
+            const scene = scenes[sceneNumber];
+
+            const sceneLines = lines.filter(
+              line => line.scene === sceneNumber
+            );
+
+            return `
+              <section>
+                <div class="scene-heading">
+                  <div class="scene-number">
+                    ${String(sceneNumber).padStart(2, "0")}
+                  </div>
+
+                  <div>
+                    <p>SCENE ${sceneNumber}</p>
+                    <h2>${escapeHtml(scene.title)}</h2>
+                  </div>
+                </div>
+
+                <div class="line-cards">
+                  ${sceneLines.map(line => {
+                    const currentText =
+                      drafts[line.id] ?? line.text;
+
+                    return `
+                      <article class="line-card">
+                        <div class="line-meta">
+                          <span>${line.id}</span>
+                          <span>SCENE ${sceneNumber}</span>
+                        </div>
+
+                        ${
+                          currentRole.owner
+                            ? `
+                              <textarea
+                                class="line-editor"
+                                data-line="${line.id}"
+                              >${escapeHtml(currentText)}</textarea>
+                            `
+                            : `
+                              <p class="line-text">
+                                ${escapeHtml(line.text)}
+                              </p>
+                            `
+                        }
+
+                        <p class="location">
+                          ${escapeHtml(scene.title)}
+                          •
+                          ${escapeHtml(scene.location)}
+                        </p>
+                      </article>
+                    `;
+                  }).join("")}
+                </div>
+              </section>
+            `;
+          }).join("")}
+        </div>
+      `;
+
+      if (currentRole.owner) {
+        document.querySelectorAll("[data-line]").forEach(editor => {
+          editor.addEventListener("input", () => {
+            drafts[editor.dataset.line] = editor.value;
+          });
+        });
+
+        getElement("saveButton").addEventListener(
+          "click",
+          saveChanges
+        );
+      }
+    }
+
+    function renderSoundtrack() {
+      getElement("content").innerHTML = `
+        <section class="heading">
+          <div>
+            <p class="eyebrow">
+              OWNER SOUNDTRACK LIBRARY
+            </p>
+
+            <h1>Download soundtrack</h1>
+
+            <p class="muted">
+              ${soundtrack.length} tracks in demo order
+            </p>
+          </div>
+
+          <a
+            class="primary download"
+            href="${downloadAllSoundtrack}"
+            download
+          >
+            Download all
+          </a>
+        </section>
+
+        <div class="soundtrack-list">
+          ${soundtrack.map(track => `
+            <article class="soundtrack-card">
+              <div class="track-number">
+                ${track.number}
+              </div>
+
+              <div>
+                <p class="eyebrow">
+                  TRACK ${track.number}
+                </p>
+
+                <h2>${escapeHtml(track.title)}</h2>
+
+                <p class="muted">
+                  ${escapeHtml(track.subtitle)}
+                </p>
+
+                <audio
+                  controls
+                  preload="none"
+                  src="${track.url}"
+                >
+                  Your browser does not support audio playback.
+                </audio>
+              </div>
+
+              <div class="track-actions">
+                <span>${track.information}</span>
+
+                <a
+                  class="download"
+                  href="${track.url}"
+                  download
+                >
+                  Download MP3
+                </a>
+              </div>
+            </article>
+          `).join("")}
+        </div>
+      `;
+    }
+
+    function saveChanges() {
+      const edits = getSavedEdits();
+
+      Object.assign(edits, drafts);
+
+      localStorage.setItem(
+        "nocb-script-edits",
+        JSON.stringify(edits)
+      );
+
+      drafts = {};
+
+      const button = getElement("saveButton");
+
+      if (button) {
+        button.textContent = "Saved ✓";
+
+        setTimeout(() => {
+          const currentButton = getElement("saveButton");
+
+          if (currentButton) {
+            currentButton.textContent = "Save changes";
+          }
+        }, 1300);
+      }
+    }
+
+    function renderPortal() {
+      renderSidebar();
+
+      if (
+        currentView === "soundtrack" &&
+        currentRole &&
+        currentRole.owner
+      ) {
+        renderSoundtrack();
+      } else {
+        renderScript();
+      }
+    }
+
+    function openPortal(role) {
+      currentRole = role;
+      selectedActor = role.owner ? "maya" : role.actor.id;
+      currentView = "script";
+      drafts = {};
+
+      getElement("login").classList.add("hidden");
+      getElement("portal").classList.remove("hidden");
+
+      getElement("layout").classList.toggle(
+        "actor-layout",
+        !role.owner
+      );
+
+      getElement("accessBadge").textContent =
+        role.owner ? "OWNER ACCESS" : "ACTOR ACCESS";
+
+      renderPortal();
+    }
+
+    getElement("loginForm").addEventListener(
+      "submit",
+      event => {
+        event.preventDefault();
+
+        const enteredCode = getElement("code").value.trim();
+
+        if (enteredCode === OWNER_CODE) {
+          openPortal({
+            owner: true
+          });
+
+          return;
+        }
+
+        const actor = actors.find(
+          item => item.code === enteredCode
+        );
+
+        if (actor) {
+          openPortal({
+            owner: false,
+            actor
+          });
+
+          return;
+        }
+
+        getElement("loginError").textContent =
+          "That code did not work. Please try again.";
+      }
+    );
+
+    getElement("code").addEventListener("input", event => {
+      event.target.value =
+        event.target.value.replace(/\D/g, "");
+    });
+
+    getElement("logout").addEventListener("click", () => {
+      currentRole = null;
+
+      getElement("portal").classList.add("hidden");
+      getElement("login").classList.remove("hidden");
+
+      getElement("code").value = "";
+      getElement("loginError").textContent = "";
+      getElement("code").focus();
+    });
+  </script>
+</body>
+</html>
